@@ -40,13 +40,15 @@ then
 	echo "====>  Sorry Failed to install Docker. Try it manually  <===="
 	exit 2
 fi
+
+
 echo "====>  Docker has been installed successfully on this host - $(hostname -s)  <===="
-# if systemctl status docker &>/dev/null 
-# then
-# 	echo "====>  And it is up and running... You can verify it using cmd: systemctl status docker  <===="
-# else
-# 	echo "====>  But it is not running. You can start it manually using cmd: systemctl start docker  <===="
-# fi
+if systemctl status docker &>/dev/null 
+then
+	echo "====>  And it is up and running... You can verify it using cmd: systemctl status docker  <===="
+else
+	echo "====>  But it is not running. You can start it manually using cmd: systemctl start docker  <===="
+fi
 
 # << comment
 # echo "#############################################"
@@ -95,6 +97,7 @@ case $choose1 in
                         ;;
                      *)
                         echo "don\'t know"
+                        exit 2
                         ;;
 esac
 
@@ -118,6 +121,7 @@ case $choose2 in
                         ;;
                      *)
                         echo "don\'t know"
+                        exit 2
                         ;;
 esac
 
@@ -132,6 +136,8 @@ read choose3
 case $choose2 in
     y | Y | yes | Yes ) 
                         sudo sysctl net.ipv4.conf.all.forwarding=1
+                        sudo iptables -P FORWARD ACCEPT
+                        cat $(pwd)/daemon.json | sudo tee -p /etc/docker/daemon.json
                         ;;
     n | N | no | No   )
                         echo "exit and logout"
@@ -140,10 +146,60 @@ case $choose2 in
                         ;;
                      *)
                         echo "don\'t know"
+                        exit 2
                         ;;
 esac
 
 
+#Restart docker
+sudo service docker restart
+
+echo "###################################################################################"
+echo "Pulling the images from Docker Hub                                                #"
+echo "###################################################################################"
+sleep 2
+
+docker pull rdefosseoai/oai-hss:latest
+docker pull rdefosseoai/oai-spgwc:latest
+docker pull rdefosseoai/oai-spgwu-tiny:latest
+docker pull rdefosseoai/magma-mme:latest
+docker image tag rdefosseoai/oai-hss:latest oai-hss:production
+docker image tag rdefosseoai/oai-spgwc:latest oai-spgwc:production
+docker image tag rdefosseoai/oai-spgwu-tiny:latest oai-spgwu-tiny:production
+docker image tag rdefosseoai/oai-spgwu-tiny:latest oai-spgwu-tiny:producti
+docker image tag rdefosseoai/magma-mme:latest magma-mme:master
+
+echo "###################################################################################"
+echo "Clone oai epc-fed                                                                 #"
+echo "###################################################################################"
+sleep 2
+
+git clone --branch v1.2.0 https://github.com/OPENAIRINTERFACE/openair-epc-fed.git
+cd openair-epc-fed
+# If you forgot to clone directly to the latest release tag
+git checkout -f v1.2.0
+# Synchronize all git submodules
+./scripts/syncComponents.sh
+
+echo "###################################################################################"
+echo "Initialize the Cassandra DB                                                       #"
+echo "###################################################################################"
+sleep 2
+
+cd docker-compose/magma-mme-demo
+docker-compose up -d db_init
+
+sleep 5
+
+docker logs demo-db-init --follow
+docker rm -f demo-db-init
+docker logs demo-cassandra
 
 
+echo "###################################################################################"
+echo "Deploy all EPC                                                                    #"
+echo "###################################################################################"
+sleep 2
 
+docker-compose up -d oai_spgwu
+sleep 10

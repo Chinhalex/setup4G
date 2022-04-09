@@ -1,0 +1,1 @@
+/home/alex/Documents/bt/daemon.json tee -a /etc/docker/daemon.json
