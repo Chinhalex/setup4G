@@ -1,0 +1,5 @@
+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
+
+curl -u Chinhalex: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 https://api.github.com/user
+
+git remote set-url origin https://Chinhalex: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@github.com/Chinhalex/setup4G.git
