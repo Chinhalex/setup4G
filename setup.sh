@@ -1,8 +1,6 @@
 #!/bin/sh
 
-sudo chmod 666 /var/run/docker.sock
-sudo usermod -aG docker ${USER}
-#Check version of ubuntu 18.04
+#1.Check version of ubuntu 18.04
 if [ "$(lsb_release -ds)" != "Ubuntu 18.04.6 LTS" ]
 then
 	echo "ERROR & EXIT"
@@ -10,9 +8,11 @@ then
 	exit 1
 fi
 
-# install ubuntu 18.04 
+sudo chmod 666 /var/run/docker.sock
+sudo usermod -aG docker ${USER}
 echo "###################################################################################"
-echo "# OS is identified as Ubuntu                                                      #"
+echo "#1.Install docker                                                                 #"
+echo "#OS is identified as Ubuntu 18.04                                                 #"
 echo "# This Script will remove old docker components and install latest stable docker  #"
 echo "###################################################################################"
 sleep 1
@@ -50,16 +50,10 @@ else
 	echo "====>  But it is not running. You can start it manually using cmd: systemctl start docker  <===="
 fi
 
-# << comment
-# echo "#############################################"
-# echo "# Now, You can play with docker             #"
-# echo "# Docker Info on $(hostname -s) is: #"
-# echo "# Docker Engine Version is: $(docker --version | cut -d " " -f3 | tr -d ",") #"
-# echo "#############################################"
-# comment
+echo "# Docker Engine Version is: $(docker --version | cut -d " " -f3 | tr -d ",") #"
 
 echo "###################################################################################"
-echo "Now install a recent version of docker-compose                                    #"
+echo "3. Now install a recent version of docker-compose                                 #"
 echo "###################################################################################"
 sleep 1
 
@@ -81,7 +75,7 @@ case $choose in
 esac
 
 echo "###################################################################################"
-echo "Now Pull base images                                                              #"
+echo "4. Now Pull base images                                                           #"
 echo "###################################################################################"
 sleep 2
 
@@ -102,7 +96,7 @@ case $choose1 in
 esac
 
 echo "###################################################################################"
-echo "Now Pull images                                                              #"
+echo "4.2. Now Pull images                                                              #"
 echo "###################################################################################"
 sleep 2
 
@@ -128,7 +122,7 @@ esac
 
 
 echo "###################################################################################"
-echo "Setup Network                                                                     #"
+echo "5.Setup Network                                                                   #"
 echo "###################################################################################"
 sleep 2
 echo "Do you wana now setup network  ? Now choise y/n: "
@@ -137,7 +131,6 @@ case $choose2 in
     y | Y | yes | Yes ) 
                         sudo sysctl net.ipv4.conf.all.forwarding=1
                         sudo iptables -P FORWARD ACCEPT
-                        cat $(pwd)/daemon.json | sudo tee -p /etc/docker/daemon.json
                         ;;
     n | N | no | No   )
                         echo "exit and logout"
@@ -150,12 +143,20 @@ case $choose2 in
                         ;;
 esac
 
+echo "###################################################################################"
+echo "6.Create new file /etc/docker/daemon.json file:                                   #"
+echo "###################################################################################"
+cat $(pwd)/daemon.json | sudo tee -p /etc/docker/daemon.json
 
-#Restart docker
+
+echo "###################################################################################"
+echo "7.Restart docker                                                                  #"
+echo "###################################################################################"
+
 sudo service docker restart
 
 echo "###################################################################################"
-echo "Pulling the images from Docker Hub                                                #"
+echo "8.Pulling the images from Docker Hub                                              #"
 echo "###################################################################################"
 sleep 2
 
@@ -170,7 +171,7 @@ docker image tag rdefosseoai/oai-spgwu-tiny:latest oai-spgwu-tiny:producti
 docker image tag rdefosseoai/magma-mme:latest magma-mme:master
 
 echo "###################################################################################"
-echo "Clone oai epc-fed                                                                 #"
+echo "9. Clone oai epc-fed                                                              #"
 echo "###################################################################################"
 sleep 2
 
@@ -182,7 +183,7 @@ git checkout -f v1.2.0
 ./scripts/syncComponents.sh
 
 echo "###################################################################################"
-echo "Initialize the Cassandra DB                                                       #"
+echo "10.Initialize the Cassandra DB                                                     #"
 echo "###################################################################################"
 sleep 2
 
@@ -197,7 +198,7 @@ docker logs demo-cassandra
 
 
 echo "###################################################################################"
-echo "Deploy all EPC                                                                    #"
+echo "11.Deploy all EPC                                                                 #"
 echo "###################################################################################"
 sleep 2
 
