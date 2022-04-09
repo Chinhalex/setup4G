@@ -1,6 +1,8 @@
 #!/bin/sh
 
-Check version of ubuntu 18.04
+sudo chmod 666 /var/run/docker.sock
+sudo usermod -aG docker ${USER}
+#Check version of ubuntu 18.04
 if [ "$(lsb_release -ds)" != "Ubuntu 18.04.6 LTS" ]
 then
 	echo "ERROR & EXIT"
@@ -79,7 +81,8 @@ esac
 echo "###################################################################################"
 echo "Now Pull base images                                                              #"
 echo "###################################################################################"
-sleep 1
+sleep 2
+
 echo "Do you have a account ? Now choise y/n: "
 read choose1
 case $choose1 in
@@ -87,18 +90,58 @@ case $choose1 in
                         docker login 
                         ;;
     n | N | no | No   )
-                        echo "Go to https://hub.docker.com/ website and create an account"
+                        echo "Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one."
+                        docker login
                         ;;
                      *)
                         echo "don\'t know"
                         ;;
 esac
 
+echo "###################################################################################"
+echo "Now Pull images                                                              #"
+echo "###################################################################################"
 sleep 2
-# Now pls register 1 account to login, pls! 
 
-echo "Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one."
-docker login
+echo "Do you wana now pull images  ? Now choise y/n: "
+read choose2
+case $choose2 in
+    y | Y | yes | Yes ) 
+                        docker pull ubuntu:bionic
+                        docker pull cassandra:2.1
+                        docker pull redis:6.0.5
+                        ;;
+    n | N | no | No   )
+                        echo "exit and logout"
+                        docker logout
+                        exit 2
+                        ;;
+                     *)
+                        echo "don\'t know"
+                        ;;
+esac
+
+
+
+echo "###################################################################################"
+echo "Setup Network                                                                     #"
+echo "###################################################################################"
+sleep 2
+echo "Do you wana now setup network  ? Now choise y/n: "
+read choose3
+case $choose2 in
+    y | Y | yes | Yes ) 
+                        sudo sysctl net.ipv4.conf.all.forwarding=1
+                        ;;
+    n | N | no | No   )
+                        echo "exit and logout"
+                        docker logout
+                        exit 2
+                        ;;
+                     *)
+                        echo "don\'t know"
+                        ;;
+esac
 
 
 
