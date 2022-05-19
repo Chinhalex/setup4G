@@ -1,8 +1,5 @@
 Excersise Description
-+-------------------------------------------------------------------+
-|Write a script file to setup OAI Core 4G components automatically  |
-+-------------------------------------------------------------------+
-
+Write a script file to setup OAI Core 4G components automatically 
 
 I. Manual Guide: https://github.com/OPENAIRINTERFACE/openair-epc-fed/blob/master/docs/DEPLOY_PRE_REQUESITES_MAGMA.md
 
@@ -56,10 +53,10 @@ $ docker image tag rdefosseoai/magma-mme:latest magma-mme:master
 
 $ git clone --branch v1.2.0 https://github.com/OPENAIRINTERFACE/openair-epc-fed.git
 $ cd openair-epc-fed
-# If you forgot to clone directly to the latest release tag
+// If you forgot to clone directly to the latest release tag
 $ git checkout -f v1.2.0
 
-# Synchronize all git submodules
+// Synchronize all git submodules
 $ ./scripts/syncComponents.sh
 
 
